@@ -60,8 +60,8 @@
 
 本仓库文件自动聚合自以下开源项目，感谢所有乐于分享的作者：
 
-* **Config Authors**: HenryChiao, 666OS, JohnsonRan, yiteei, liandu2024, Lanlan13-14, yyhhyyyyyy, echs-top, qichiyuhub, iKelee
-* **Mobile Modules**: Surfing, AkashaProxy, ClashMix, BoxProxy
-* **Wiki**: Metacubex Wiki
+* **Config Authors**: [HenryChiao](https://github.com/HenryChiao), [666OS](https://github.com/666OS), [JohnsonRan](https://github.com/JohnsonRan), [yiteei](https://github.com/yiteei), [liandu2024](https://github.com/liandu2024), [yyhhyyyyyy](https://github.com/yyhhyyyyyy), [echs-top](https://github.com/echs-top), [qichiyuhub](https://github.com/qichiyuhub), [iKelee](https://github.com/luestr), [Fufu](https://github.com/sunfing), [Lanlan13-14](https://github.com/Lanlan13-14/Rules)
+* **Mobile Modules**: [Surfing](https://github.com/GitMetaio/Surfing), [AkashaProxy](https://github.com/akashaProxy/akashaProxy), [ClashMix](https://github.com/AXEVO/Clash-MIX), [BoxProxy](https://github.com/boxproxy/box)
+* **Wiki**:  [MihomoWiki](https://wiki.metacubex.one/)
 
 > ⚠️ **免责声明**: 本仓库仅作为配置文件的自动化搬运与归档工具，所有配置文件的版权归原作者所有。
