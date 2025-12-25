@@ -12,7 +12,7 @@
   每日自动抓取更新 · 严格分类整理 · 纯净开箱即用
 </p>
 
-[⬇️ 下载客户端](#-mihomo-客户端下载-clients) • [📖 如何使用](#-如何使用-usage) • [📂 查看配置](#-配置分类导航-categories)
+[⬇️ 下载客户端](#-mihomo-客户端与核心清单-clients) • [📖 如何使用](#-如何使用-usage) • [📂 查看配置](#-配置分类导航-categories)
 
 </div>
 
@@ -79,23 +79,52 @@
 
 ---
 
-## 🛠️ Mihomo 客户端下载 (Clients)
+## 🚀 Mihomo 客户端与核心清单 (Clients)
 
 此处整理了各平台适配 **Mihomo (Clash Meta)** 核心的图形化客户端。
 
-| 平台 | 推荐软件 | 状态/说明 | 下载链接 |
-| :---: | :--- | :--- | :--- |
-| 🐧 | **Mihomo Core** | 🟢 **核心文件** (无界面) | [Github Releases](https://github.com/vernesong/mihomo/releases) |
-| 🪟 | **Clash Verge Rev** | 🟢 Windows 推荐，界面美观 | [Github Releases](https://github.com/clash-verge-rev/clash-verge-rev/releases) |
-| 🪟 | **Sparkle** | 🟢 Windows 新秀 | [Github Releases](https://github.com/xishang0128/sparkle) |
-| 🍎 | **Clash Verge Rev** | 🟢 macOS 推荐 | [Github Releases](https://github.com/clash-verge-rev/clash-verge-rev/releases) |
-| 🤖 | **FlClash** | 🟢 Android/PC/Mac (Flutter) | [Github Releases](https://github.com/chen08209/FlClash/releases) |
-| 🤖 | **Clash Meta for Android** | 🟡 停止更新 (但仍好用) | [Github Releases](https://github.com/MetaCubeX/ClashMetaForAndroid/releases) |
-| 📱 | **Pharos Pro** | 🟢 iOS 推荐 | [App Store](https://apps.apple.com/us/app/pharos-pro/id1456610173) |
-| 📱 | **Stash** | 🟢 iOS (收费) | [App Store](https://apps.apple.com/app/stash/id1596063349) |
-| 📱 | **ClashBox** | 🟢 HarmonyOS (鸿蒙) | [Github Releases](https://github.com/xiaobaigroup/ClashBox) |
-| 🌐 | **Nikki** | 🟢 OpenWrt 插件 | [Github Releases](https://github.com/nikkinikki-org/OpenWrt-nikki) |
-| 🌐 | **OpenClash** | 🟢 OpenWrt 经典插件 | [Github Releases](https://github.com/vernesong/OpenClash) |
+| 平台 | 客户端名称 | 推荐度 | 核心特点/优势 | 说明/缺点 | 链接 |
+|---|---|---|---|---|---|
+| **核心** | **Mihomo Core** | 🟢 | 官方核心，无界面。支持 Rule-set, GeoX 等所有新特性。 | 所有 GUI 的基础。适合开发者、Linux 服务器或手搓配置党。 | [Github](https://github.com/MetaCubeX/mihomo/releases) |
+| **核心** | **Mihomo (Smart)** | 🟢 | 路由/DNS 专用。指使用 Core 配合 TProxy/Tun 做透明网关。 | 这里的 "Smart" 通常指直接运行 Core 进行底层网络接管。 | [Guide](https://wiki.metacubex.one/) |
+|  |  |  |  |  |  |
+| **MacOS** | **FlClash** | 🟢 | 状态栏切换节点，多端同步，对 Meta 配置可视化极佳。 | 窗口管理比 Verge 更适合 Mac，Flutter 开发。 | [Github](https://github.com/chen08209/FlClash/releases) |
+| **MacOS** | **Sparkle** | 🟢 | 原生感极强，支持状态栏切换，核心成员开发。 | 暂无明显缺点，Swift 开发。 | [Github](https://github.com/xishang0128/sparkle/releases) |
+| **MacOS** | **Clash Verge Rev** | 🟢 | 功能强大，覆写设置丰富。 | 与 Mac 状态栏融合度一般，不如前两者丝滑。 | [Github](https://github.com/clash-verge-rev/clash-verge-rev/releases) |
+| **MacOS** | Clash Party | 🟡 | 丝滑度高，原 Mihomo Party 分支。 | 存在项目所有权变更风险，目前迭代较快。 | [Github](https://github.com/mihomo-party-org/mihomo-party/releases) |
+| **MacOS** | ClashMac | 🟡 | SwiftUI 开发，美观轻量，类 ClashX Meta 逻辑。 | 闭源项目。 | [Github](https://github.com/ClashMac/ClashMac) |
+| **MacOS** | ClashX Meta | 🟡 | 官方维护，稳定性尚可。 | UI 审美较为独特，易与其他 App 冲突，已不再是首选。 | [Github](https://github.com/MetaCubeX/ClashX.Meta/releases) |
+|  |  |  |  |  |  |
+| **Windows** | **FlClash** | 🟢 | 极度轻量，更新极其勤快，功能全。 | UI 风格偏移动端 (Material Design)。 | [Github](https://github.com/chen08209/FlClash/releases) |
+| **Windows** | **Clash Verge Rev** | 🟢 | 目前主流，内存占用少，功能最全。 | 2.0+ 版本架构变动大，UI 设计中规中矩。 | [Github](https://github.com/clash-verge-rev/clash-verge-rev/releases) |
+| **Windows** | **Sparkle** | 🟢 | 核心成员作品，对 Meta 原生写法适配最好。 | 软件体积较大，更新频率随缘。 | [Github](https://github.com/xishang0128/sparkle/releases) |
+| **Windows** | Clash Party | 🟡 | 原 Mihomo Party 分支。 | 继任者为利益相关方，有潜在风险。 | [Github](https://github.com/mihomo-party-org/mihomo-party/releases) |
+| **Windows** | GUI.for.Clash | 🟡 | 插件化设计，鼠标点选生成配置。 | 适合极简/小白用户，功能自定义程度低。 | [Github](https://github.com/GUI-for-Cores/GUI.for.Clash/releases) |
+| **Windows** | Clash Nyanpasu | 🟠 | 界面二次元化。 | 更新随缘。 | [Github](https://github.com/keiko233/clash-nyanpasu/releases) |
+|  |  |  |  |  |  |
+| **Linux** | **Mihomo** (裸核) | 🟢 | 利用 nftables 以 `auto_redirect` TUN 模式运行。 | 部署简便、性能较强。适合服务器/极客。 | [Github](https://github.com/MetaCubeX/mihomo/releases) |
+| **Linux** | **FlClash** | 🟢 | Linux 桌面端首选 GUI，体验一致。 | AppImage 格式，开箱即用。 | [Github](https://github.com/chen08209/FlClash/releases) |
+| **Linux** | Clash Verge Rev | 🟢 | 传统的 Linux GUI 客户端。 | 支持 Deb/Rpm/AppImage。 | [Github](https://github.com/clash-verge-rev/clash-verge-rev/releases) |
+|  |  |  |  |  |  |
+| **SteamOS** | **ToMoon** | 🟢 | Steam Deck 专用插件，基于 Mihomo 核心。 | 掌机模式下直接管理。 | [Github](https://github.com/YukiCoco/ToMoon) |
+| **SteamOS** | DeckyClash | 🟢 | Steam Deck 插件，基于 Mihomo 核心。 | 需要 Decky Loader。 | [Github](https://github.com/NotGlop/DeckyClash) |
+|  |  |  |  |  |  |
+| **Android** | **FlClash** | 🟢 | 仿 Surfboard 界面，全协议，更省电。 | 覆写选项比 CMFA 略少。 | [Github](https://github.com/chen08209/FlClash/releases) |
+| **Android** | **Clash Meta (CMFA)** | 🟢 | 官方分支，设置选项最全，兼容性最好。 | UI 交互逻辑一般，已停止大版本更新(但仍好用)。 | [Github](https://github.com/MetaCubeX/ClashMetaForAndroid/releases) |
+| **Android** | Clash Mi | 🟡 | KaringX 作者新作，全协议支持。 | 新项目，处于早期阶段。 | [Telegram](https://t.me/clash_mi) |
+| **Android** | YumeBox | 🟡 | UI 美观，集成 Sub-Store 和 Smart 策略组。 | 策略组切换操作较繁琐。 | [Github](https://github.com/Dreamacro/clash/issues) |
+| **Android** | Surfing | 🟠 | Root 模块。集成配置，开箱即用。 | 需 Magisk/KSU 环境。 | [Github](https://github.com/GitMetaio/Surfing) |
+| **Android** | Box4Magisk | 🟠 | Root 模块。全能核心 (Mihomo/Sing-box等)。 | 纯命令行/模块，无界面，门槛高。 | [Github](https://github.com/boxproxy/box) |
+| **HarmonyOS** | **ClashBox** | 🟢 | (原 ClashNEXT) 基于安卓端 FlClash 二次开发。 | 需切换海外 App 商店下载，适配纯血鸿蒙。 | [Github](https://github.com/xiaobaigroup/ClashBox) |
+|  |  |  |  |  |  |
+| **iOS** | **Stash** ($5.99) | 🟢 | 强大的分流与重写，集成 MitM。 | 配置文件与标准 Mihomo 不完全互通，新协议跟进慢。 | [App Store](https://apps.apple.com/app/stash/id1596063349) |
+| **iOS** | **Pharos Pro** ($2.99) | 🟢 | 一份配置通杀全平台，兼容性好。 | 佛系更新，缺席极个别 2025 新协议。 | [App Store](https://apps.apple.com/us/app/pharos-pro/id1456610173) |
+| **iOS** | Clash Mi | 🟢 | 免费/TestFlight，全协议支持。 | KaringX 新项目。 | [Telegram](https://t.me/clash_mi) |
+|  |  |  |  |  |  |
+| **路由器** | **OpenClash** | 🟢 | (OpenWrt) 功能最全，设置极其丰富。 | 启动慢，界面臃肿，吃 CPU 性能。 | [Github](https://github.com/vernesong/OpenClash) |
+| **路由器** | **Nikki** | 🟢 | (OpenWrt) 轻量化，启动快，依赖 nftables。 | 原 MihomoTProxy，适合现代 OpenWrt。 | [Github](https://github.com/nikkinikki-org/OpenWrt-nikki) |
+| **路由器** | ShellCrash | 🟢 | (小米/SSH) 性能强，通过 SSH 管理。 | 无 Web UI (或仅有简单面板)。 | [Github](https://github.com/juewuy/ShellCrash) |
+| **路由器** | MerlinClash2 | 🟢 | (华硕) 梅林固件首选，精简重构。 | 不支持老旧 CPU 型号。 | [Website](https://mclash.cn/) |
 
 ---
 
