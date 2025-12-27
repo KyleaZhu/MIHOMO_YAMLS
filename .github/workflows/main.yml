@@ -85,6 +85,11 @@ jobs:
             "https://raw.githubusercontent.com/liandu2024/little/refs/heads/main/yaml/clash-fallback-all.yaml"
           curl -s -o "General_Config/liandu2024/clash-all-fallback.yaml" \
             "https://raw.githubusercontent.com/liandu2024/little/refs/heads/main/yaml/clash-all-fallback.yaml"
+          
+          # --- ClashConnectRules ---
+          mkdir -p "General_Config/ClashConnectRules"
+          curl -s -o "General_Config/ClashConnectRules/Clash.yaml" \
+            "https://raw.githubusercontent.com/ClashConnectRules/Self-Configuration/refs/heads/main/Clash.yaml"
 
           # --- Lanlan13-14 ---
           mkdir -p "General_Config/Lanlan13-14"
