@@ -168,6 +168,7 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - rule-set:Direct
+    - rule-set:AWAvenueAds
     - rule-set:Private
     - rule-set:China
     - '+.pub.3gppnetwork.org'
