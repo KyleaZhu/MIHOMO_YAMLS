@@ -1,5 +1,4 @@
-name: Generate RULE-SET (Mihomo & Stash Only)
-
+name: Generate RULE-SET
 on:
   workflow_dispatch:
   schedule:
@@ -9,7 +8,6 @@ on:
       - master
     paths-ignore:
       - "**/README.md"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -64,24 +62,25 @@ jobs:
 
       - name: Make directories
         run: |
-          # 仅创建必要的中间文件夹和目标文件夹
           mkdir -p download/meta
           mkdir -p download/surge
           mkdir -p download/special
-          
-          # Mihomo 目录结构
+          mkdir -p singbox/version1
+          mkdir -p singbox/version2
+          mkdir -p singbox/version3
+          mkdir -p singbox/version4
           mkdir -p meta/domain
           mkdir -p meta/ipcidr
           mkdir -p meta/classical
-          
-          # Stash 目录
           mkdir -p stash/domain
           mkdir -p stash/ipcidr
           mkdir -p stash/classical
-          
+          mkdir -p surge
+          mkdir -p shadowrocket
+          mkdir -p quantumultx
+          mkdir -p loon
+          mkdir -p egern
           mkdir -p push
-
-      # --- 下载与合并流程 (保持不变，因为这是核心数据源) ---
 
       - name: Download meta ruleset
         run: |
@@ -549,7 +548,102 @@ jobs:
 
           awk '{ sub(/,no-resolve$/, ""); print }' meta/cncidr.list > meta/cncidr-resolve.list
 
-      # --- 生成 Mihomo (.mrs) 和 Stash 规则 ---
+      - name: Generate sing-box ruleset
+        run: |
+          for file in meta/*.list; do
+              awk -F',' '
+              BEGIN {
+                  printf "{\n";
+                  printf "  \"version\": 1,\n";
+                  printf "  \"rules\": [\n";
+                  printf "    {\n";
+              }
+              {
+                  if($1 == "DOMAIN-REGEX" && match($0, ",")){
+                      $2 = substr($0, RSTART + 1);
+                      gsub(/\\/, "\\\\", $2);
+                  }
+                  sub(/^"/, "", $2);
+                  sub(/^'"'"'/, "", $2);
+                  sub(/"$/, "", $2);
+                  sub(/'"'"'$/, "", $2);
+                  $2 = "\"" $2 "\"";
+                  if ($1 == "DOMAIN") {
+                      if (!domain++) {
+                          if (NR > 1) printf "\n      ],\n";
+                          printf "      \"domain\": [\n";
+                          printf "        %s", $2;
+                      } else {
+                          printf ",\n        %s", $2;
+                      }
+                  } else if ($1 == "DOMAIN-SUFFIX") {
+                      if (!suffix++) {
+                          if (NR > 1) printf "\n      ],\n";
+                          printf "      \"domain_suffix\": [\n";
+                          printf "        %s", $2;
+                      } else {
+                          printf ",\n        %s", $2;
+                      }
+                  } else if ($1 == "DOMAIN-KEYWORD") {
+                      if (!keyword++) {
+                          if (NR > 1) printf "\n      ],\n";
+                          printf "      \"domain_keyword\": [\n";
+                          printf "        %s", $2;
+                      } else {
+                          printf ",\n        %s", $2;
+                      }
+                  } else if ($1 == "DOMAIN-REGEX") {
+                      if (!regex++) {
+                          if (NR > 1) printf "\n      ],\n";
+                          printf "      \"domain_regex\": [\n";
+                          printf "        %s", $2;
+                      } else {
+                          printf ",\n        %s", $2;
+                      }
+                  } else if ($1 == "IP-CIDR" || $1 == "IP-CIDR6") {
+                      if (!cidr++) {
+                          if (NR > 1) printf "\n      ],\n";
+                          printf "      \"ip_cidr\": [\n";
+                          printf "        %s", $2;
+                      } else {
+                          printf ",\n        %s", $2;
+                      }
+                  }
+              }
+              END {
+                  printf "\n      ]\n";
+                  printf "    }\n";
+                  printf "  ]\n";
+                  printf "}\n";
+              }' "$file" > "singbox/version1/$(basename "$file" ".list").json"
+          done
+
+          rm -f singbox/version1/*-resolve.json
+          rm -f meta/fake-ip-filter.list
+
+          for file in singbox/version1/*.json ; do
+              awk 'sub(/"version": 1,/, "\"version\": 2,", $0) 1' "${file}" > "singbox/version2/$(basename "$file")"
+              awk 'sub(/"version": 1,/, "\"version\": 3,", $0) 1' "${file}" > "singbox/version3/$(basename "$file")"
+              awk 'sub(/"version": 1,/, "\"version\": 4,", $0) 1' "${file}" > "singbox/version4/$(basename "$file")"
+          done
+
+      - name: Download and unzip `sing-box core`
+        run: |
+          # singbox_version=$(curl -fsSL https://github.com/SagerNet/sing-box/releases | grep -oE '/SagerNet/sing-box/releases/tag/[^\"]*'| sort -r | head -1 | sed 's/.*v//')
+
+          singbox_version="1.13.0-beta.1"
+
+          wget "https://github.com/SagerNet/sing-box/releases/download/v${singbox_version}/sing-box-${singbox_version}-linux-amd64.tar.gz" -O - | tar -zxf -
+
+          mv sing-box-${singbox_version}-linux-amd64/sing-box ./sing-box
+
+          chmod +x ./sing-box
+
+      - name: Generate sing-box srs
+        run: |
+          for file in singbox/*/*.json ; do
+              ./sing-box rule-set compile --output "${file%.json}.srs" "${file}"
+          done
 
       - name: Generate meta domains
         run: |
@@ -611,10 +705,113 @@ jobs:
           cp -r meta/. stash/
           rm -f stash/domain/fake-ip-filter*
 
+      - name: Generate shadowrocket ruleset
+        run: |
+          for file in meta/*.list; do
+              awk '{
+                  if ($0 ~/^DOMAIN-REGEX,/ || $0 ~ /^PROCESS-NAME,/) {
+                      next;
+                  }
+                  sub(/^IP-CIDR6/, "IP-CIDR");
+                  print;
+              }' "$file" > "shadowrocket/$(basename "$file")"
+          done
+
+      - name: Generate quantumultx ruleset
+        run: |
+          for file in meta/*.list; do
+              awk -v filename="$(basename "$file" .list)" '{
+                  if ($0 ~ /^DOMAIN-REGEX,/ || $0 ~ /^PROCESS-NAME,/) {
+                      next;
+                  }
+                  sub(/^DOMAIN/, "HOST");
+                  sub(/^DOMAIN-SUFFIX/, "HOST-SUFFIX");
+                  sub(/^DOMAIN-KEYWORD/, "HOST-KEYWORD");
+                  sub(/^DOMAIN-WILDCARD/, "HOST-WILDCARD");
+                  sub(/^IP-CIDR6/, "IP6-CIDR");
+                  sub(/,no-resolve$/, "");
+                  print $0 "," filename;
+              }' "$file" > "quantumultx/$(basename "$file")"
+          done
+          rm -f quantumultx/*-resolve.list
+
+      - name: Generate loon ruleset
+        run: |
+          for file in meta/*.list; do
+              awk '{
+                  if ($0 ~ /^DOMAIN-WILDCARD,/ || $0 ~ /^DOMAIN-REGEX,/ || $0 ~ /^PROCESS-NAME,/) {
+                      next;
+                  }
+                  print;
+              }' "$file" > "loon/$(basename "$file")"
+          done
+
+      - name: Generate egern ruleset
+        run: |
+          for file in meta/*.list; do
+              grep -q ',no-resolve$' "$file" && found_no_resolve=1 || found_no_resolve=0
+              awk -F',' -v found_no_resolve="$found_no_resolve" '
+              BEGIN {
+                  if (found_no_resolve) print "no_resolve: true";
+              }
+              {
+                  if($1 == "DOMAIN-REGEX" && match($0, ",")){
+                      $2 = substr($0, RSTART + 1);
+                  }
+                  sub(/^"/, "", $2);
+                  sub(/^'"'"'/, "", $2);
+                  sub(/"$/, "", $2);
+                  sub(/'"'"'$/, "", $2);
+                  chars = "[{}\\[\\]&*#|<>!%@`]"
+                  if ($2 ~ "^" chars) {
+                      $2 = sprintf("\x27%s\x27", $2);
+                  }
+                  if ($1 == "DOMAIN") {
+                      if (!domain++) print "domain_set:";
+                      print "- " $2;
+                  } else if ($1 == "DOMAIN-SUFFIX") {
+                      if (!suffix++) print "domain_suffix_set:";
+                      print "- " $2;
+                  } else if ($1 == "DOMAIN-KEYWORD") {
+                      if (!keyword++) print "domain_keyword_set:";
+                      print "- " $2;
+                  } else if ($1 == "DOMAIN-WILDCARD") {
+                      if (!wildcard++) print "domain_wildcard_set:";
+                      print "- " $2;
+                  } else if ($1 == "DOMAIN-REGEX") {
+                      if (!regex++) print "domain_regex_set:";
+                      print "- " $2;
+                  } else if ($1 == "IP-CIDR") {
+                      if (!cidr++) print "ip_cidr_set:";
+                      print "- " $2;
+                  } else if ($1 == "IP-CIDR6") {
+                      if (!cidr6++) print "ip_cidr6_set:";
+                      print "- " $2;
+                  }
+              }' "$file" > "egern/$(basename "$file" ".list").yaml"
+          done
+
+      - name: Generate surge ruleset
+        run: |
+          for file in meta/*.list; do
+              awk '{
+                  if ($0 ~ /^DOMAIN-REGEX,/) {
+                      next;
+                  }
+                  print;
+              }' "$file" > "surge/$(basename "$file")"
+          done
+
       - name: Move files to push directory
         run: |
+          cp -r singbox/ push/
           cp -r meta/ push/
           cp -r stash/ push/
+          cp -r surge/ push/
+          cp -r shadowrocket/ push/
+          cp -r quantumultx/ push/
+          cp -r loon/ push/
+          cp -r egern/ push/
 
       - name: Git push assets to "ruleset" branch
         run: |
