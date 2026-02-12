@@ -47,12 +47,10 @@ jobs:
           # macOS平台
           - { platform: darwin, arch: amd64 }
           - { platform: darwin, arch: arm64 }
-          # Android平台
+          # Android平台（移除CGO，使用标准构建）
           - { platform: android, arch: arm64 }
           - { platform: android, arch: armv7 }
           - { platform: android, arch: amd64 }
-          # iOS平台（仅sing-box支持）
-          - { platform: ios, arch: arm64 }
       fail-fast: false
     
     steps:
