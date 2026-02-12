@@ -352,7 +352,6 @@ jobs:
       - build-singbox-sagernet-release
       - build-singbox-sagernet-dev
       - download-mihomo-meta
-      --meta
       - download-mihomo-alpha
       - download-mihomo-smart
     if: always()
