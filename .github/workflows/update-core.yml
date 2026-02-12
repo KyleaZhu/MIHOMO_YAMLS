@@ -318,18 +318,6 @@ jobs:
     if: always()
     
     steps:
-      - name: Checkout主仓库
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Checkout Core分支
-        uses: actions/checkout@v4
-        with:
-          ref: core
-          path: core-branch
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 下载所有产物
         uses: actions/download-artifact@v4
         with:
@@ -341,6 +329,94 @@ jobs:
           echo "=== 产物目录结构 ==="
           find ./artifacts -type f 2>/dev/null | sort || echo "无产物"
           echo "==================="
+
+      - name: 配置Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 检出或创建Core分支
+        run: |
+          REPO_URL="https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          # 检查core分支是否存在
+          if git ls-remote --heads "$REPO_URL" core | grep -q "refs/heads/core"; then
+            echo "Core分支存在，执行检出"
+            git clone --depth=1 --branch=core "$REPO_URL" core-branch
+          else
+            echo "Core分支不存在，创建新分支"
+            # 先克隆main分支
+            git clone --depth=1 "$REPO_URL" core-branch
+            cd core-branch
+            # 清空内容（保留.git）
+            rm -rf *
+            rm -rf .github .gitignore 2>/dev/null || true
+            
+            # 创建初始目录结构
+            mkdir -p sing-box/reF1nd/main
+            mkdir -p sing-box/reF1nd/dev
+            mkdir -p sing-box/SagerNet/release
+            mkdir -p sing-box/SagerNet/dev
+            mkdir -p mihomo/MetaCubeX/meta
+            mkdir -p mihomo/MetaCubeX/alpha
+            mkdir -p mihomo/vernesong/smart
+            
+            # 创建初始README
+            cat > README.md << 'EOF'
+            # Core 核心文件仓库
+            
+            自动构建的 sing-box 和 mihomo 核心文件。
+            
+            ## 目录结构
+            
+            ```
+            sing-box/
+            ├── reF1nd/
+            │   ├── main/      # reF1nd-main 分支
+            │   └── dev/       # reF1nd-dev 分支
+            └── SagerNet/
+                ├── release/   # SagerNet 正式版
+                └── dev/       # SagerNet 开发版
+            
+            mihomo/
+            ├── MetaCubeX/
+            │   ├── meta/      # MetaCubeX 正式版
+            │   └── alpha/     # MetaCubeX 测试版
+            └── vernesong/
+                └── smart/     # OpenClash Smart版
+            ```
+            
+            ## 平台支持
+            
+            - **Linux**: amd64-v1, amd64-v3, armv5, armv6, armv7, arm64, mips-softfloat, mipsle-softfloat, mipsle-hardfloat
+            - **Windows**: amd64-v1, amd64-v3, arm64
+            - **macOS**: amd64 (Intel), arm64 (Apple Silicon)
+            - **Android**: arm64, armv7, amd64
+            
+            ## 文件格式
+            
+            - `.tar.gz` - 标准压缩包（Linux/macOS/Android）
+            - `.exe` - Windows可执行文件
+            - `.upx` - UPX极限压缩版（仅Linux）
+            
+            ## 自动更新
+            
+            本仓库通过 GitHub Actions 每日自动检测上游更新并重新构建。
+            EOF
+            
+            git add .
+            git commit -m "Initial commit: create core branch structure"
+            git branch -M core
+            git push -u origin core
+            echo "已创建并推送core分支"
+          fi
+
+      - name: 重新检出Core分支
+        uses: actions/checkout@v4
+        with:
+          ref: core
+          path: core-branch
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup UPX
         uses: crazy-max/ghaction-upx@v3
@@ -354,7 +430,7 @@ jobs:
 
       - name: 组织产物到Core分支结构
         run: |
-          # 创建目录结构
+          # 确保目录结构存在
           mkdir -p ./core-branch/sing-box/reF1nd/main
           mkdir -p ./core-branch/sing-box/reF1nd/dev
           mkdir -p ./core-branch/sing-box/SagerNet/release
@@ -369,7 +445,6 @@ jobs:
             
             filename=$(basename "$file")
             
-            # 解析文件名: sing-box-variant-platform-arch.ext
             if [[ "$filename" =~ sing-box-([^-]+)-([^-]+)-(.+)\.(tar\.gz|upx|exe) ]]; then
               variant="${BASH_REMATCH[1]}"
               platform="${BASH_REMATCH[2]}"
@@ -446,83 +521,20 @@ jobs:
             fi
           done
 
-      - name: 生成README
+      - name: 更新README时间戳
         run: |
-          cat > ./core-branch/README.md << 'EOF'
-          # Core 核心文件仓库
+          # 更新主README
+          sed -i "s/最后更新:.*/最后更新: $(date -u '+%Y-%m-%d %H:%M:%S UTC')/g" ./core-branch/README.md 2>/dev/null || true
           
-          自动构建的 sing-box 和 mihomo 核心文件。
-          
-          ## 目录结构
-          
-          ```
-          sing-box/
-          ├── reF1nd/
-          │   ├── main/      # reF1nd-main 分支
-          │   └── dev/       # reF1nd-dev 分支
-          └── SagerNet/
-              ├── release/   # SagerNet 正式版
-              └── dev/       # SagerNet 开发版
-          
-          mihomo/
-          ├── MetaCubeX/
-          │   ├── meta/      # MetaCubeX 正式版
-          │   └── alpha/     # MetaCubeX 测试版
-          └── vernesong/
-              └── smart/     # OpenClash Smart版
-          ```
-          
-          ## 平台支持
-          
-          - **Linux**: amd64-v1, amd64-v3, armv5, armv6, armv7, arm64, mips-softfloat, mipsle-softfloat, mipsle-hardfloat
-          - **Windows**: amd64-v1, amd64-v3, arm64
-          - **macOS**: amd64 (Intel), arm64 (Apple Silicon)
-          - **Android**: arm64, armv7, amd64
-          - **iOS**: arm64 (仅sing-box)
-          
-          ## 文件格式
-          
-          - `.tar.gz` - 标准压缩包（Linux/macOS/Android/iOS）
-          - `.exe` - Windows可执行文件
-          - `.upx` - UPX极限压缩版（仅Linux/Android）
-          
-          ## 自动更新
-          
-          本仓库通过 GitHub Actions 每日自动检测上游更新并重新构建。
-          EOF
-          
-          for variant_dir in ./core-branch/sing-box/*/ ./core-branch/mihomo/*/; do
-            [[ -d "$variant_dir" ]] || continue
-            variant_name=$(basename "$variant_dir")
-            parent_name=$(basename "$(dirname "$variant_dir")")
-            full_name="${parent_name}/${variant_name}"
-            
-            cat > "${variant_dir}/README.md" << EOF
-          # ${full_name}
-          
-          最后更新: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          
-          ## 平台目录
-          
-          - linux/ - Linux 平台
-          - windows/ - Windows 平台
-          - darwin/ - macOS 平台
-          - android/ - Android 平台
-          - ios/ - iOS 平台（如适用）
-          
-          ## 校验文件
-          
-          - checksums.txt - SHA256校验和
-          
-          [返回上级](../)
-          EOF
+          # 更新各变体README
+          for readme in ./core-branch/sing-box/*/README.md ./core-branch/mihomo/*/README.md; do
+            [[ -f "$readme" ]] || continue
+            sed -i "s/最后更新:.*/最后更新: $(date -u '+%Y-%m-%d %H:%M:%S UTC')/g" "$readme"
           done
 
       - name: 提交到Core分支
         run: |
           cd core-branch
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
             echo "没有变更需要提交"
