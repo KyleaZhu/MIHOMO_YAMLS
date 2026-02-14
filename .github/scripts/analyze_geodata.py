@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 import datetime
+import shutil
 
 WORKSPACE_DIR = "workspace"
 OLD_STATS_FILE = "old_data/stats.json"
@@ -48,58 +49,44 @@ def process_dat_files():
                     continue
                 
                 dat_path = os.path.join(cat_dir, file)
-                # 创建导出目录： workspace/Author/geoip/dat_name_export/
+                # 创建导出目录
                 export_dir = os.path.join(cat_dir, f"{file}_text")
+                if os.path.exists(export_dir):
+                    shutil.rmtree(export_dir)
                 os.makedirs(export_dir, exist_ok=True)
                 
                 print(f"  -> Extracting {file}...")
                 
-                # --- GeoIP 处理 ---
-                if "geoip" in file.lower():
-                    # 1. 获取列表
-                    list_file = os.path.join(export_dir, "list.txt")
-                    run_command(f"geoip list {dat_path} > {list_file}")
+                # --- 使用 v2dat 进行解包 ---
+                # 语法: v2dat unpack geoip -o <output_dir> <dat_file>
+                #       v2dat unpack geosite -o <output_dir> -f <filter_list> <dat_file>
+                
+                mode = "geoip" if "geoip" in file.lower() else "geosite"
+                
+                try:
+                    # 尝试解包
+                    # 注意：v2dat unpack 会把所有分类解压成单独的文件到指定目录
+                    run_command(f"v2dat unpack {mode} -o {export_dir} {dat_path}")
                     
-                    # 2. 读取列表并导出每个 tag
-                    if os.path.exists(list_file):
-                        with open(list_file, 'r') as f:
-                            tags = [line.strip().split()[0] for line in f if line.strip()]
+                    # 统计解包后的文件
+                    if os.path.exists(export_dir):
+                        files = os.listdir(export_dir)
+                        # 挑选几个关键文件进行统计，避免统计几千个文件
+                        target_tags = ["cn", "google", "telegram", "private", "apple"]
                         
-                        # 仅导出常用 Tag 防止文件过多 (可选：如果想导出所有，去掉 [:20])
-                        # 为了演示，这里导出所有，但实际使用建议做个过滤，否则可能有几百个文件
-                        for tag in tags: 
-                            out_txt = os.path.join(export_dir, f"{tag}.txt")
-                            run_command(f"geoip export -o {out_txt} {dat_path} {tag}")
-                            
-                            # 统计
-                            count = count_lines(out_txt)
-                            current_stats[author][f"{file}::{tag}"] = count
-
-                # --- GeoSite 处理 ---
-                elif "geosite" in file.lower() or "dlc" in file.lower():
-                    # Geosite 工具通常直接支持导出
-                    # 先尝试列出 (domain-list-community 没有简单的 list 命令，通常直接解包)
-                    # 这里假设我们只关心常见分类，或者尝试导出特定列表
-                    # 也可以用 tool 遍历，这里简化逻辑，尝试导出 Google, CN, Apple 等常见
-                    
-                    # 实际上 domain-list-community 可以通过 export 导出所有包含的 category
-                    # 但需要知道名字。通常做法是解包 data 目录。
-                    # 由于命令行工具限制，这里我们模拟导出几个关键 tag
-                    
-                    target_tags = ["google", "cn", "apple", "telegram", "netflix", "openai", "category-ads-all"]
-                    
-                    for tag in target_tags:
-                        out_txt = os.path.join(export_dir, f"{tag}.txt")
-                        # geosite (domain-list-community) 语法: -dat path -export tag
-                        # 注意：不同版本工具参数可能不同，这里使用 domain-list-community 标准
-                        run_command(f"geosite -dat {dat_path} -export {tag} > {out_txt}")
+                        # 如果是 geoip，统计 CN 和 US 等
+                        # 如果是 geosite，统计 google, cn 等
                         
-                        if os.path.exists(out_txt) and os.path.getsize(out_txt) > 0:
-                            count = count_lines(out_txt)
-                            current_stats[author][f"{file}::{tag}"] = count
-                        else:
-                            # 清理空文件
-                            if os.path.exists(out_txt): os.remove(out_txt)
+                        for tag_file in files:
+                            tag_name = os.path.splitext(tag_file)[0]
+                            # 只统计感兴趣的 Tag，或者你可以去掉这个 if 统计所有
+                            if tag_name in target_tags or len(files) < 20: 
+                                full_path = os.path.join(export_dir, tag_file)
+                                count = count_lines(full_path)
+                                current_stats[author][f"{file}::{tag_name}"] = count
+                                
+                except Exception as e:
+                    print(f"Failed to unpack {file}: {e}")
 
     return current_stats
 
